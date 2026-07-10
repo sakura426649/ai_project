@@ -1,49 +1,43 @@
 import db from '../db/index.js'
 
 export const Skill = {
-  create({ name, description, category, skillType = 'script', scriptContent, inputSchema, outputSchema, createdBy }) {
-    const stmt = db.prepare(`
-      INSERT INTO skills (name, description, category, skill_type, script_content, input_schema, output_schema, created_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `)
-    const result = stmt.run(name, description, category, skillType, scriptContent,
-      inputSchema ? JSON.stringify(inputSchema) : null,
-      outputSchema ? JSON.stringify(outputSchema) : null,
-      createdBy)
+  create({ userId, name, description, skillType, config }) {
+    const result = db.prepare(
+      'INSERT INTO skills (user_id, name, description, skill_type, config) VALUES (?, ?, ?, ?, ?)'
+    ).run(userId ?? null, name, description || null, skillType, config || null)
     return this.findById(result.lastInsertRowid)
   },
 
   findById(id) {
-    const row = db.prepare('SELECT * FROM skills WHERE id = ?').get(id)
-    if (row) {
-      if (row.input_schema) row.input_schema = JSON.parse(row.input_schema)
-      if (row.output_schema) row.output_schema = JSON.parse(row.output_schema)
-    }
-    return row
+    return db.prepare('SELECT * FROM skills WHERE id = ?').get(id)
   },
 
-  findAll({ category } = {}) {
-    if (category) return db.prepare('SELECT * FROM skills WHERE category = ? ORDER BY id').all(category)
-    return db.prepare('SELECT * FROM skills ORDER BY id').all()
+  findAll({ page = 1, pageSize = 20 } = {}) {
+    const total = db.prepare('SELECT COUNT(*) as count FROM skills').get().count
+    const rows = db.prepare('SELECT * FROM skills ORDER BY created_at DESC LIMIT ? OFFSET ?').all(pageSize, (page - 1) * pageSize)
+    return { rows, total }
   },
 
-  update(id, data) {
-    const fields = []
-    const values = []
-    const allowed = ['name', 'description', 'category', 'skill_type', 'script_content', 'input_schema', 'output_schema', 'status']
-    for (const key of allowed) {
-      if (data[key] !== undefined) {
-        fields.push(`${key} = ?`)
-        values.push(key.includes('schema') && data[key] ? JSON.stringify(data[key]) : data[key])
+  findByType(skillType) {
+    return db.prepare('SELECT * FROM skills WHERE skill_type = ?').all(skillType)
+  },
+
+  update(id, fields) {
+    const sets = []
+    const vals = []
+    for (const [k, v] of Object.entries(fields)) {
+      if (['name', 'description', 'skill_type', 'config'].includes(k)) {
+        sets.push(`${k} = ?`)
+        vals.push(v)
       }
     }
-    fields.push("updated_at = datetime('now')")
-    values.push(id)
-    db.prepare(`UPDATE skills SET ${fields.join(', ')} WHERE id = ?`).run(...values)
+    if (!sets.length) return this.findById(id)
+    vals.push(id)
+    db.prepare(`UPDATE skills SET ${sets.join(', ')} WHERE id = ?`).run(...vals)
     return this.findById(id)
   },
 
   delete(id) {
-    return db.prepare('DELETE FROM skills WHERE id = ?').run(id)
+    db.prepare('DELETE FROM skills WHERE id = ?').run(id)
   }
 }
