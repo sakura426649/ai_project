@@ -42,3 +42,4 @@ export const User = {
     db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(passwordHash, id)
   }
 }
+// F-00 Auth model layer
