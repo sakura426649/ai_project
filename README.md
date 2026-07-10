@@ -8,17 +8,17 @@
 
 | 阶段 | 日期 | 状态 |
 |------|------|:----:|
-| Day 1 — 后端框架搭建 | 2026-07-10 | DONE |
-| Day 2 — 功能对接与前端 | 待定 | PENDING |
-| Day 3 — 集成联调 | 待定 | PENDING |
+| Day 1 — Model 层搭建 | 2026-07-10 | DONE |
+| Day 2 — Service + Controller | 待定 | PENDING |
+| Day 3 — Route + 前端联调 | 待定 | PENDING |
 
-Day 1 成果：24 张数据库表、60+ API 端点、55 个 JS 文件、WebSocket 通信桩。
+Day 1 成果：13 张数据库表、10 个 Model 文件、Auth 模块全栈实现。
 
 ## 技术栈
 
 **前端**: Vue 3 + Element Plus + Vue Router + Pinia + Axios
-**后端**: Node.js + Express + better-sqlite3 + Socket.IO
-**认证**: JWT (Access Token 15min + Refresh Token 7d)
+**后端**: Node.js + Express + better-sqlite3
+**认证**: JWT (Access Token)
 
 ## 项目结构
 
@@ -26,23 +26,15 @@ Day 1 成果：24 张数据库表、60+ API 端点、55 个 JS 文件、WebSocke
 ├── backend/             # Node.js + Express 后端
 │   └── src/
 │       ├── config/          # 环境变量配置
-│       ├── db/              # SQLite 数据库 + 建表初始化
-│       ├── models/          # 数据访问层 (16 个模型)
-│       ├── services/        # 业务逻辑层 (9 个服务)
-│       ├── controllers/     # 请求处理层 (9 个控制器)
-│       ├── routes/          # 路由定义 (10 个路由模块)
+│       ├── db/              # SQLite 数据库 + 建表初始化 (13张表)
+│       ├── models/          # 数据访问层 (10 个模型)
+│       ├── services/        # 业务逻辑层
+│       ├── controllers/     # 请求处理层
+│       ├── routes/          # 路由定义
 │       ├── middleware/       # JWT 认证 + 错误处理 + 限流
 │       ├── validators/      # express-validator 参数校验
-│       ├── utils/           # JWT 工具 + 统一响应格式
-│       └── socket/          # Socket.IO WebSocket 服务
+│       └── utils/           # JWT 工具 + 统一响应格式
 ├── frontend/            # Vue 3 前端
-│   └── src/
-│       ├── api/             # Axios 封装 + API 模块
-│       ├── router/          # 路由 + 守卫
-│       ├── stores/          # Pinia 状态管理
-│       ├── views/           # 页面组件
-│       ├── components/      # 公共组件
-│       └── styles/          # 全局样式
 ├── Day1完成报告.md       # Day 1 开发完成报告
 └── README.md
 ```
@@ -50,26 +42,19 @@ Day 1 成果：24 张数据库表、60+ API 端点、55 个 JS 文件、WebSocke
 ## 快速启动
 
 ```bash
-# 后端
 cd backend && npm install && npm run dev
-
-# 前端
-cd frontend && npm install && npm run dev
 ```
 
 ## 模块与分工
 
-| ID | 模块 | 负责人 | 优先级 | Day 1 |
-|----|------|--------|:------:|:-----:|
-| F-00 | 注册登录与认证 | huangjinxiang | P0 | DONE |
-| F-01 | 用户与组织管理 | zhengyongchun | P0 | DONE |
-| F-02 | 模型管理 | zhengyongchun | P0 | DONE |
-| F-03 | 智能问数 NL2SQL | yanhanyu | P0 | DONE |
-| F-04 | 数据采集与清洗 | heziwen | P1 | DONE |
-| F-05 | 技能管理 | baorunfeng | P0 | DONE |
-| F-06 | 数字员工管理 | baorunfeng | P0 | DONE |
-| F-07 | 即时通讯 IM | zonghailang | P0 | DONE |
-| F-08 | 合规管理 | heziwen | P0 | DONE |
+| ID | 模块 | 负责人 | Day 1 |
+|----|------|--------|:-----:|
+| F-00 | 注册登录与认证 | huangjinxiang | DONE |
+| F-01 | 组织管理（部门+员工） | zhengyongchun | DONE |
+| F-02 | API配置 + 技能管理 | yanhanyu | DONE |
+| F-03 | 数字员工 + 智能问数 | baorunfeng | DONE |
+| F-04 | 即时通讯 + 对话 | zonghailang | DONE |
+| F-05 | 群组 + 管理后台 | heziwen | DONE |
 
 ## Git 分支策略
 
@@ -80,8 +65,8 @@ feature/*  →  dev  →  release/*  →  main
 | 分支 | 模块 |
 |------|------|
 | feature/f00-auth | F-00 认证 |
-| feature/f01-f02-user-model | F-01 用户组织 + F-02 模型管理 |
-| feature/f03-nl2sql | F-03 智能问数 |
-| feature/f05-f06-skill-employee | F-05 技能 + F-06 数字员工 |
-| feature/f07-im | F-07 即时通讯 |
-| feature/f08-f04-compliance-data | F-08 合规 + F-04 数据采集 |
+| feature/f01-org | F-01 组织管理 |
+| feature/f02-apiconfig-skill | F-02 API配置 + 技能 |
+| feature/f03-agent-nl2sql | F-03 数字员工 + NL2SQL |
+| feature/f04-im-chat | F-04 IM + 对话 |
+| feature/f05-group-admin | F-05 群组 + 管理后台 |
