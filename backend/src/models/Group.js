@@ -1,57 +1,72 @@
 import db from '../db/index.js'
 
 export const Group = {
-  create({ name, avatar, ownerId, description }) {
-    const stmt = db.prepare(`
-      INSERT INTO groups_chat (name, avatar, owner_id, description)
-      VALUES (?, ?, ?, ?)
-    `)
-    const result = stmt.run(name, avatar, ownerId, description)
-    const group = this.findById(result.lastInsertRowid)
-    db.prepare('INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, ?)').run(group.id, ownerId, 'owner')
-    return group
+  create({ name, description, avatar, announcement, createdBy }) {
+    const result = db.prepare(
+      'INSERT INTO groups_chat (name, description, avatar, announcement, created_by) VALUES (?, ?, ?, ?, ?)'
+    ).run(name, description || null, avatar || null, announcement || null, createdBy)
+    return this.findById(result.lastInsertRowid)
   },
 
   findById(id) {
-    const group = db.prepare('SELECT * FROM groups_chat WHERE id = ?').get(id)
-    if (group) group.members = db.prepare(`
-      SELECT u.id, u.username, u.email, gm.role, gm.joined_at
-      FROM group_members gm JOIN users u ON gm.user_id = u.id
-      WHERE gm.group_id = ?
-    `).all(id)
-    return group
+    return db.prepare('SELECT * FROM groups_chat WHERE id = ?').get(id)
+  },
+
+  findAll() {
+    return db.prepare('SELECT * FROM groups_chat ORDER BY updated_at DESC').all()
   },
 
   findByUser(userId) {
-    return db.prepare(`
-      SELECT g.* FROM groups_chat g
-      JOIN group_members gm ON g.id = gm.group_id
-      WHERE gm.user_id = ?
-      ORDER BY g.updated_at DESC
-    `).all(userId)
+    return db.prepare(
+      'SELECT g.* FROM groups_chat g JOIN group_members gm ON g.id = gm.group_id WHERE gm.user_id = ?'
+    ).all(userId)
+  },
+
+  update(id, fields) {
+    const sets = []
+    const vals = []
+    for (const [k, v] of Object.entries(fields)) {
+      if (['name', 'description', 'avatar', 'announcement'].includes(k)) {
+        sets.push(`${k} = ?`)
+        vals.push(v)
+      }
+    }
+    if (!sets.length) return this.findById(id)
+    sets.push('updated_at = datetime(\'now\')')
+    vals.push(id)
+    db.prepare(`UPDATE groups_chat SET ${sets.join(', ')} WHERE id = ?`).run(...vals)
+    return this.findById(id)
+  },
+
+  delete(id) {
+    db.prepare('DELETE FROM groups_chat WHERE id = ?').run(id)
   },
 
   addMember(groupId, userId, role = 'member') {
-    return db.prepare(
-      'INSERT OR IGNORE INTO group_members (group_id, user_id, role) VALUES (?, ?, ?)'
-    ).run(groupId, userId, role)
+    db.prepare('INSERT OR IGNORE INTO group_members (group_id, user_id, role) VALUES (?, ?, ?)').run(groupId, userId, role)
   },
 
   removeMember(groupId, userId) {
-    return db.prepare(
-      'DELETE FROM group_members WHERE group_id = ? AND user_id = ? AND role != ?'
-    ).run(groupId, userId, 'owner')
+    db.prepare('DELETE FROM group_members WHERE group_id = ? AND user_id = ?').run(groupId, userId)
   },
 
-  update(id, { name, avatar, description }) {
-    const fields = []
-    const values = []
-    if (name !== undefined) { fields.push('name = ?'); values.push(name) }
-    if (avatar !== undefined) { fields.push('avatar = ?'); values.push(avatar) }
-    if (description !== undefined) { fields.push('description = ?'); values.push(description) }
-    fields.push("updated_at = datetime('now')")
-    values.push(id)
-    db.prepare(`UPDATE groups_chat SET ${fields.join(', ')} WHERE id = ?`).run(...values)
-    return this.findById(id)
+  getMembers(groupId) {
+    return db.prepare(
+      'SELECT u.id, u.username, u.email, gm.role, gm.joined_at FROM users u JOIN group_members gm ON u.id = gm.user_id WHERE gm.group_id = ?'
+    ).all(groupId)
+  },
+
+  addAgent(groupId, agentId) {
+    db.prepare('INSERT OR IGNORE INTO group_agents (group_id, agent_id) VALUES (?, ?)').run(groupId, agentId)
+  },
+
+  removeAgent(groupId, agentId) {
+    db.prepare('DELETE FROM group_agents WHERE group_id = ? AND agent_id = ?').run(groupId, agentId)
+  },
+
+  getAgents(groupId) {
+    return db.prepare(
+      'SELECT a.* FROM agents a JOIN group_agents ga ON a.id = ga.agent_id WHERE ga.group_id = ?'
+    ).all(groupId)
   }
 }
