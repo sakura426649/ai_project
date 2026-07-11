@@ -9,10 +9,11 @@
 | 阶段 | 日期 | 状态 |
 |------|------|:----:|
 | Day 1 — Model 层搭建 | 2026-07-10 | DONE |
-| Day 2 — Service + Controller | 待定 | PENDING |
+| Day 2 — Service + Controller | 2026-07-11 | DONE |
 | Day 3 — Route + 前端联调 | 待定 | PENDING |
 
 Day 1 成果：13 张数据库表、10 个 Model 文件、Auth 模块全栈实现。
+Day 2 成果：10 个 Service 文件、10 个 Controller 文件、9 个 Route 文件、55 个 API 端点。
 
 ## 技术栈
 
@@ -36,6 +37,7 @@ Day 1 成果：13 张数据库表、10 个 Model 文件、Auth 模块全栈实�
 │       └── utils/           # JWT 工具 + 统一响应格式
 ├── frontend/            # Vue 3 前端
 ├── Day1完成报告.md       # Day 1 开发完成报告
+├── Day2完成报告.md       # Day 2 开发完成报告
 └── README.md
 ```
 
@@ -47,14 +49,14 @@ cd backend && npm install && npm run dev
 
 ## 模块与分工
 
-| ID | 模块 | 负责人 | Day 1 |
-|----|------|--------|:-----:|
-| F-00 | 注册登录与认证 | huangjinxiang | DONE |
-| F-01 | 组织管理（部门+员工） | zhengyongchun | DONE |
-| F-02 | API配置 + 技能管理 | yanhanyu | DONE |
-| F-03 | 数字员工 + 智能问数 | baorunfeng | DONE |
-| F-04 | 即时通讯 + 对话 | zonghailang | DONE |
-| F-05 | 群组 + 管理后台 | heziwen | DONE |
+| ID | 模块 | 负责人 | Day 1 | Day 2 |
+|----|------|--------|:-----:|:-----:|
+| F-00 | 注册登录与认证 | huangjinxiang | DONE | DONE |
+| F-01 | 组织管理（部门+员工） | zhengyongchun | DONE | DONE |
+| F-02 | API配置 + 技能管理 | yanhanyu | DONE | DONE |
+| F-03 | 数字员工 + 智能问数 | baorunfeng | DONE | DONE |
+| F-04 | 即时通讯 + 对话 | zonghailang | DONE | DONE |
+| F-05 | 群组 + 管理后台 | heziwen | DONE | DONE |
 
 ## Git 分支策略
 
