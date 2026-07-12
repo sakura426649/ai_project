@@ -9,6 +9,7 @@ import agentRoutes from './agents.js'
 import conversationRoutes from './conversations.js'
 import messageRoutes from './messages.js'
 import groupRoutes from './groups.js'
+import dashboardRoutes from './dashboard.js'
 
 const router = Router()
 
@@ -25,5 +26,6 @@ router.use('/agents', agentRoutes)
 router.use('/conversations', conversationRoutes)
 router.use('/messages', messageRoutes)
 router.use('/groups', groupRoutes)
+router.use('/dashboard', dashboardRoutes)
 
 export default router
